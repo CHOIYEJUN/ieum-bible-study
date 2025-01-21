@@ -1,5 +1,6 @@
 import {DBservice} from "./fireBase";
 import {addDoc, collection, doc, setDoc} from "firebase/firestore";
+import { getToday } from './util/DateUtil';
 
 export async function CreateUserField(uid, email, username, belong) {
     const userDocRef = doc(collection(DBservice, "users"), uid);
@@ -8,7 +9,7 @@ export async function CreateUserField(uid, email, username, belong) {
         email: email,
         username: username,
         belong: belong,
-        createdAt: Date.now(),
-        startDay: "2025-01-06",
+        createdAt: getToday(),
+        startDay: "2025-02-02",
     });
 }

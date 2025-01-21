@@ -164,7 +164,7 @@ export default function MyState () {
                     w={'80%'}
                 >
                     <Text fontSize={'small'}>로그아웃</Text>
-                    <Text fontSize={'small'}>기록하기</Text>
+                    <Text fontSize={'small'}>출석하기</Text>
                     <Text fontSize={'small'}>통계 페이지</Text>
                     <Text fontSize={'small'}>성경 읽기표</Text>
                 </HStack>

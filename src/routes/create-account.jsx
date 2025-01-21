@@ -37,7 +37,7 @@ export default function CreateAccount() {
     const [error, setError] = useState("");
     const [passwordCheck, setPasswordCheck] = useState(false);
     const [passwordChackSpan, setPasswordChackSpan] = useState("");
-    const [belong, setBelong] = useState();
+    const [belong, setBelong] = useState('창조교회');
     const navigation = useNavigate();
     const toast = useToast();
     const emailCheck = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
@@ -60,8 +60,6 @@ export default function CreateAccount() {
 
             }
             setPasswordConfirm(value);
-        }else if(name === "belong"){
-            setBelong(value);
         }
     };
 
@@ -127,7 +125,7 @@ export default function CreateAccount() {
                     <Title>회원가입</Title>
                         <Input
                             name = "username"
-                            placeholder = "닉네임"
+                            placeholder = "이름"
                             type = "text"
                             required
                             value = {username}
@@ -189,9 +187,9 @@ export default function CreateAccount() {
                         <Input
                             name = "belong"
                             required
-                            value = {belong}
+                            value = {'창조교회'}
                             onChange = {onChange}
-                            placeholder = "소속 교회"
+                            disabled={true}
                         >
                         </Input>
 
@@ -200,8 +198,9 @@ export default function CreateAccount() {
                             placeholder = ""
                             type = "text"
                             required
-                            value = {"2025-01-06"}
+                            value = {"2025-02-02"}
                             readOnly={true}
+                            disabled={true}
                         />
 
                         <HStack
