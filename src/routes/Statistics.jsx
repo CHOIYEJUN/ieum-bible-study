@@ -30,74 +30,116 @@ export default function Statistics () {
     const [total_4th, setTotal_4th] = useState({});
 
 
-    const steampProps = (propsData) => {
+    // 금요일인지 확인하는 함수
+    const isFriday = (dateString) => {
+        const date = new Date(dateString);
+        return date.getDay() === 5; // 금요일만 체크
+    };
 
-        thisMonthCurcle(propsData);
-        totalCurcle(propsData);
-    }
-
-    const totalCurcle = (propsData) => {
-        const scores = propsData.reduce((acc, curr) => {
-            const score = curr.quest_status === 'excellent' ? 5 : curr.quest_status === 'good' ? 3 : 0;
-            if (acc[curr.uid]) {
-                acc[curr.uid].score += score;
-            } else {
-                acc[curr.uid] = { name: curr.user_name, score: score };
-            }
-            return acc;
-        }, {});
-        const sortedScores = Object.values(scores).sort((a, b) => b.score - a.score);
-        totleCurrentSeampImg(sortedScores);
-
-    }
-
+// 이번 달 금요일 출석 계산
     const thisMonthCurcle = (propsData) => {
         const thisMonthItem = propsData.filter((item) => {
-            return item.quest_date.substring(0, 7) === new Date().toISOString().substring(0, 7);
+            const isThisMonth = item.quest_date.substring(0, 7) === new Date().toISOString().substring(0, 7);
+            return isThisMonth && isFriday(item.quest_date); // 금요일만 필터링
         });
+
         const scores = thisMonthItem.reduce((acc, curr) => {
-            const score = curr.quest_status === 'excellent' ? 5 : curr.quest_status === 'good' ? 3 : 0;
             if (acc[curr.uid]) {
-                acc[curr.uid].score += score;
+                acc[curr.uid].score += 5;
             } else {
-                acc[curr.uid] = { name: curr.user_name, score: score };
+                acc[curr.uid] = { name: curr.user_name, score: 5 };
             }
             return acc;
         }, {});
+
         const sortedScores = Object.values(scores).sort((a, b) => b.score - a.score);
         currentSeampImg(sortedScores);
-    }
+    };
 
+// 누적 금요일 출석 계산
+    const totalCurcle = (propsData) => {
+        const totalFridayItems = propsData.filter((item) => isFriday(item.quest_date));
 
+        const scores = totalFridayItems.reduce((acc, curr) => {
+            if (acc[curr.uid]) {
+                acc[curr.uid].score += 5;
+            } else {
+                acc[curr.uid] = { name: curr.user_name, score: 5 };
+            }
+            return acc;
+        }, {});
+
+        const sortedScores = Object.values(scores).sort((a, b) => b.score - a.score);
+        totleCurrentSeampImg(sortedScores);
+    };
+
+    const percentByImg = (percent) => {
+        switch (true) {
+            case percent >= 90:
+                return REACT_APP_STEAMP_IMG_10; // 90% 이상
+            case percent >= 80:
+                return REACT_APP_STEAMP_IMG_9;  // 80% 이상
+            case percent >= 70:
+                return REACT_APP_STEAMP_IMG_8;  // 70% 이상
+            case percent >= 60:
+                return REACT_APP_STEAMP_IMG_7;  // 60% 이상
+            case percent >= 50:
+                return REACT_APP_STEAMP_IMG_6;  // 50% 이상
+            case percent >= 40:
+                return REACT_APP_STEAMP_IMG_5;  // 40% 이상
+            case percent >= 30:
+                return REACT_APP_STEAMP_IMG_4;  // 30% 이상
+            case percent >= 20:
+                return REACT_APP_STEAMP_IMG_3;  // 20% 이상
+            case percent >= 10:
+                return REACT_APP_STEAMP_IMG_2;  // 10% 이상
+            default:
+                return REACT_APP_STEAMP_IMG_1;  // 10% 미만
+        }
+    };
+
+// 금요일 최대 점수 계산 및 이미지 설정
     const currentSeampImg = (sortedScores) => {
         const today = new Date();
-        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate() -1);
-        const lastDayNum = lastDay.getDate();
-        const maxScore = lastDayNum * 5;
+        const year = today.getFullYear();
+        const month = today.getMonth();
 
-        sortedScores.map((item, index) => {
+        const totalFridays = [...Array(31)]
+          .map((_, i) => new Date(year, month, i + 1))
+          .filter((date) => date.getMonth() === month && date.getDay() === 5).length;
+
+        const maxScore = totalFridays * 5;
+
+        sortedScores.map((item) => {
             const myScore = item.score;
             const percent = Math.ceil((myScore / maxScore) * 100);
-
             item.img = percentByImg(percent);
         });
 
         setThisMonth_1st(sortedScores[0]);
         setThisMonth_2nd(sortedScores[1]);
         setThisMonth_3rd(sortedScores[2]);
+    };
+
+    const steampProps = (propsData) => {
+
+        thisMonthCurcle(propsData);
+        totalCurcle(propsData);
     }
 
+// 누적 최대 점수 계산 및 이미지 설정
     const totleCurrentSeampImg = (sortedScores) => {
         const today = new Date();
-        const lastDay = new Date(2024, 0, 3 );
-        // 오늘에서 lastDay를 빼면 몇일이 지났는지 계산해야해
-        const lastDayNum = Math.ceil((today.getTime() - lastDay.getTime()) / (1000 * 3600 * 24));
-        const maxScore = lastDayNum * 5;
+        const firstDate = new Date(2024, 0, 1);
+        const totalFridays = [...Array(Math.ceil((today - firstDate) / (1000 * 60 * 60 * 24)))]
+          .map((_, i) => new Date(firstDate.getTime() + i * (1000 * 60 * 60 * 24)))
+          .filter((date) => date.getDay() === 5).length;
 
-        sortedScores.map((item, index) => {
+        const maxScore = totalFridays * 5;
+
+        sortedScores.map((item) => {
             const myScore = item.score;
             const percent = Math.ceil((myScore / maxScore) * 100);
-
             item.img = percentByImg(percent);
         });
 
@@ -105,43 +147,15 @@ export default function Statistics () {
         setTotal_2nd(sortedScores[1]);
         setTotal_3rd(sortedScores[2]);
         setTotal_4th(sortedScores[3]);
-    }
-
-    const percentByImg = (percent) => {
-        let imgUrl = "";
-
-        if(percent >= 90) {
-            imgUrl = REACT_APP_STEAMP_IMG_10;
-        }else if (percent >= 80) {
-            imgUrl = REACT_APP_STEAMP_IMG_9;
-        }else if(percent >= 70) {
-            imgUrl = REACT_APP_STEAMP_IMG_8;
-        } else if(percent >= 60) {
-            imgUrl = REACT_APP_STEAMP_IMG_7;
-        } else if(percent >= 50) {
-            imgUrl = REACT_APP_STEAMP_IMG_6;
-        } else if(percent >= 40) {
-            imgUrl = REACT_APP_STEAMP_IMG_5;
-        } else if(percent >= 30) {
-            imgUrl = REACT_APP_STEAMP_IMG_4;
-        } else if(percent >= 20) {
-            imgUrl = REACT_APP_STEAMP_IMG_3;
-        } else if(percent >= 10) {
-            imgUrl = REACT_APP_STEAMP_IMG_2;
-        } else {
-            imgUrl = REACT_APP_STEAMP_IMG_1;
-        }
-
-        return imgUrl;
-    }
+    };
 
     const onClick = (e) => {
-        if(e.target.name === "myState"){
-            navigation("/myState");
-        }else if(e.target.name === "bibleTracker") {
-            navigation("/bibleTracker");
+        if (e.target.name === "myState") {
+            navigation("/myState"); // 마이페이지로 이동
+        } else if (e.target.name === "bibleTracker") {
+            navigation("/bibleTracker"); // 성경 읽기표로 이동
         }
-    }
+    };
 
     return (
             <VStack

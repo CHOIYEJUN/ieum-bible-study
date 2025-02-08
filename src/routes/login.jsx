@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {styled} from "styled-components";
 import {Link, useNavigate} from "react-router-dom";
-import {Center, HStack, useToast} from "@chakra-ui/react";
+import { Center, HStack, Text, useToast } from '@chakra-ui/react';
 import {signInWithEmailAndPassword} from "firebase/auth";
 import {auth, DBservice} from "../fireBase.js";
 import { collection, doc, getDoc } from "firebase/firestore";
@@ -137,6 +137,8 @@ export default function Login() {
         <Center>
             <HStack>
         <Wrapper>
+
+            <Text>이음 바이블 스터디 출석 시스템</Text>
             <Title>로그인</Title>
             <StyleForm onSubmit={onSubmit} >
                 <Input
